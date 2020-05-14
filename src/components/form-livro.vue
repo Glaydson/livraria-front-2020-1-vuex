@@ -52,7 +52,7 @@
             <input class="form-control"
                    id="idNumeroPaginas"
                    type="number"
-                   placeholder=""
+                   placeholder="Número de páginas"
                    v-model="livro.numeroPaginas"/>
           </div>
         </div>
@@ -62,7 +62,10 @@
                 for="autores">Autores</label>
             <div class="col-md-8">
                 <select multiple class="form-control" 
-                    id="autores" v-model="livro.autores">
+                    id="autores" v-model="livro.autores"
+                    :class="{ invalid: !livro.autores.length}"
+                    @keyup.esc="limpaAutor">
+                    <option disabled value>Selecione um</option>
                     <option>Autor 1</option>
                     <option>Autor 2</option>
                     <option>Autor 3</option>
@@ -70,6 +73,18 @@
                     <option>Autor 5</option>
                 </select>
             </div>
+        </div>
+
+        <div class="form-group row mb-2">
+          <label class="col-md-2 col-form-label"
+                 for="idDisponivel">Disponível</label>
+  
+          <div class="col-md-8">
+            <input class="form-control"
+                   id="idDisponivel"
+                   type="checkbox"
+                   v-model="livro.disponivel"/>
+          </div>
         </div>
   
         <div class="form-group row mb-2">
@@ -92,7 +107,7 @@
       </form>
     </div>
     <div> 
-        <p>{{message}}</p>
+        <p>{{mensagem}}</p>
     </div>
   </div>
 </template>
@@ -108,20 +123,22 @@ export default {
         dataPublicacao: "2000-03-08",
         preco: 50,
         numeroPaginas: 300,
-        autores: ['Autor 1', 'Autor 2'],
-        ativo: true,
+        autores: [],
+        disponivel: true,
       },
-      message: '',
+      mensagem: '',
     };
   },
   methods: {
     cancelarLivro() {
-      this.message = '';
+      this.mensagem = '';
+    },
+    limpaAutor() {
+      this.livro.autores = []
     },
     salvarLivro() {
       // This only updates when you click the save button
-      this.message = JSON.stringify(this.livro, null, '\n ');
-      console.log(this.message)
+      this.mensagem = JSON.stringify(this.livro, null, '\n ');
     },
   },
 };
@@ -136,4 +153,8 @@ header {
     font-weight: bold;
     text-transform: uppercase;
 }
+select.invalid {
+  border-left: 10px red solid;
+}
+
 </style>
