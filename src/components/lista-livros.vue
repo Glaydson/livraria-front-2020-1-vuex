@@ -1,5 +1,5 @@
 <template>
-  <div class="card" style="width: 20rem;">
+  <div class="card" style="width: 30rem;">
     <div class="card-header">LISTA DE LIVROS</div>
     <ul class="list-group list-group-flush">
       <li
@@ -14,7 +14,7 @@
       </li>
     </ul>
     <div v-if="livroSelecionado">
-      <div class="card-header">LIVRO SELECIONADO</div>
+      <div class="card-header">{{tituloDisponibilidade}}</div>
       <form>
         <div class="form-group">
           <label for="id">Id</label>
@@ -107,14 +107,25 @@ export default {
           autores: ["Autor 5", "Autor 6"],
           disponivel: true
         }
-      ],
+      ]
     };
   },
+  computed: {
+    tituloDisponibilidade() {
+      return `${this.livroSelecionado.titulo} - ${
+        this.livroSelecionado.disponivel ? "Disponível" : "Indisponível"
+      }`;
+    }
+  }
 };
 </script>
 
 <style scoped>
 li a {
   cursor: pointer;
+}
+.card-header {
+  text-transform: uppercase;
+  font-weight: bold;
 }
 </style>
