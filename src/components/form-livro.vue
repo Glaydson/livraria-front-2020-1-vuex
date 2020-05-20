@@ -156,5 +156,10 @@ header {
 select.invalid {
   border-left: 10px red solid;
 }
-
+.notification pre{
+  background-color: blue;
+  color: white;
+  font-size: 16px;
+  line-height: 30px;
+}
 </style>
