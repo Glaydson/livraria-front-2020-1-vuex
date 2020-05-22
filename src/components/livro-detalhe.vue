@@ -1,17 +1,139 @@
 <template>
-    <div>
-        Estou aqui {{livro.titulo}}
-    </div>
+  <div>
+    <div class="card-header">{{tituloDisponibilidade}}</div>
+    <form>
+      <div class="form-group">
+        <label for="id">Id</label>
+        <input type="text" class="form-control" id="id" disabled :value="livroClonado.livroID" />
+      </div>
+      <div class="form-group">
+        <label for="titulo">Título</label>
+        <input type="text" class="form-control" id="idTitulo" v-model="livroClonado.titulo" />
+      </div>
+      <div class="form-group">
+        <label for="dataPublicacao">Data da Publicação</label>
+        <input
+          type="date"
+          class="form-control"
+          id="dataPublicacao"
+          v-model="livroClonado.dataPublicacao"
+        />
+        <label>Data longa: {{ livroClonado.dataPublicacao | formatDate}}</label>
+      </div>
+      <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="mostrar" v-model="mostrarMais" />
+        <label for="mostrar" class="form-check-label">Mostrar Mais Campos</label>
+      </div>
+      <div class="form-group" v-show="mostrarMais">
+        <label for="preco">Preço</label>
+        <input type="number" class="form-control" id="preco" v-model="livroClonado.preco" />
+        <label>{{mensagemPreco}}</label>
+      </div>
+      <div class="form-group" v-show="mostrarMais">
+        <label for="autores">Autor(es) - Atuais: {{livroClonado.autores}}</label>
+        <select multiple class="form-control" id="autores" v-model="livroClonado.autores">
+          <option
+            v-for="autor in autores"
+            :key="autor.autorID"
+            :value="autor.autorID"
+          >{{autor.nome}}</option>
+        </select>
+      </div>
+      <div class="form-group" v-show="mostrarMais">
+        <label for="editora">Editora - Atual: {{livroClonado.editora.nome}}</label>
+        <select class="form-control" :name="livroClonado.editora" id="editora" v-model="livroClonado.editora.editoraID">
+          <option
+            v-for="editora in editoras"
+            :key="editora.editoraID"
+            :value="editora.editoraID"
+          >{{editora.nome}}</option>
+        </select>
+      </div>
+      <footer class="card-footer">
+        <button class="btn btn-secondary botoes" @click="cancelarEdicao()">
+          <i class="fas fa-undo"></i>
+          <span>Cancelar</span>
+        </button>
+        <button class="btn btn-primary botoes" @click="salvarLivro()">
+          <i class="fas fa-save"></i>
+          <span>Salvar</span>
+        </button>
+      </footer>
+    </form>
+  </div>
 </template>
 
 <script>
-    export default {
-        name: "LivroDetalhe",
-        props: {
-            livro: {
-                type: Object,
-                default: () => {}
-            },
-        },
+export default {
+  name: "LivroDetalhe",
+  props: {
+    livro: {
+      type: Object,
+      default: () => {}
+    },
+    todosAutores: {
+      type: Array,
+      default: () => []
+    },
+    todasEditoras: {
+      type: Array,
+      default: () => []
     }
+  },
+  data() {
+    return {
+      mostrarMais: false,
+      mensagemPreco: "",
+      livroClonado: { ...this.livro },
+    };
+  },
+  created () {
+      var autoresIDs = this.livroClonado.autores.map(function (autor) {
+          return autor.autorID;
+      })
+      this.livroClonado.autores = autoresIDs; 
+      console.log(this.livroClonado)
+  },
+  computed: {
+    tituloDisponibilidade() {
+      return `${this.livroClonado.titulo} - ${
+        this.livroClonado.disponivel ? "Disponível" : "Indisponível"
+      }`;
+    },
+    autores() {
+      return this.todosAutores;
+    },
+    editoras() {
+      return this.todasEditoras;
+    }
+  },
+  methods: {
+    salvarLivro() {
+      this.$emit("salvar", this.livroClonado);
+    },
+    cancelarEdicao() {
+      this.$emit("cancelar");
+    },
+    processaMudancaPreco(valorAntigo, valorNovo) {
+      if (valorAntigo == undefined) {
+        this.mensagemPreco = "";
+      } else {
+        if (valorAntigo > valorNovo) {
+          this.mensagemPreco = "O preço caiu";
+        } else this.mensagemPreco = "O preço subiu";
+      }
+    }
+  },
+  watch: {
+    "livroClonado.preco": {
+      immediate: false,
+      handler(valorNovo, valorAntigo) {
+        console.log(
+          `Watcher avaliado. antigo=${valorAntigo}, novo=${valorNovo}`
+        );
+        this.processaMudancaPreco(valorAntigo, valorNovo);
+      }
+    }
+  }
+};
 </script>

@@ -8,8 +8,7 @@
             v-for="livro in livros"
             :key="livro.id"
             class="list-group-item list-group-item-action"
-            :class="{ 'active': livroSelecionado === livro }"
-          >
+            :class="{ 'active': livroSelecionado === livro }">
             <a @click="selecionarLivro(livro)">
               <span>{{ livro.titulo }}</span>
             </a>
@@ -17,73 +16,26 @@
         </ul>
         <div class="notification" v-show="mensagem">{{ mensagem }}</div>
       </div>
-      <div v-if="livroSelecionado">
-        <LivroDetalhe :livro="livroSelecionado" />
-        <div class="card-header">{{tituloDisponibilidade}}</div>
-        <form>
-          <div class="form-group">
-            <label for="id">Id</label>
-            <input type="text" class="form-control" id="id" disabled :value="livroSelecionado.id" />
-          </div>
-          <div class="form-group">
-            <label for="titulo">Título</label>
-            <input
-              type="text"
-              class="form-control"
-              id="idTitulo"
-              :value="livroSelecionado.titulo"
-            />
-          </div>
-          <div class="form-group">
-            <label for="dataPublicacao">Data da Publicação</label>
-            <input
-              type="date"
-              class="form-control"
-              id="dataPublicacao"
-              v-model="livroSelecionado.dataPublicacao"
-            />
-            <label>Data longa: {{ livroSelecionado.dataPublicacao | formatDate}}</label>
-          </div>
-          <div class="form-group form-check">
-            <input type="checkbox" class="form-check-input" id="mostrar" v-model="mostrarMais" />
-            <label for="mostrar" class="form-check-label">Mostrar Mais Campos</label>
-          </div>
-          <div class="form-group" v-show="mostrarMais">
-            <label for="preco">Preço</label>
-            <input type="number" class="form-control" id="preco" v-model="livroSelecionado.preco" />
-            <label>{{mensagemPreco}}</label>
-          </div>
-          <div class="form-group" v-show="mostrarMais">
-            <label for="autores">Autor(es)</label>
-            <input
-              type="text"
-              class="form-control"
-              id="autores"
-              disabled
-              :value="livroSelecionado.autores"
-            />
-          </div>
-          <footer class="card-footer">
-            <button class="btn btn-secondary botoes" @click="cancelarLivro()">
-              <i class="fas fa-undo"></i>
-              <span>Cancelar</span>
-            </button>
-            <button class="btn btn-primary botoes" @click="salvarLivro()">
-              <i class="fas fa-save"></i>
-              <span>Salvar</span>
-            </button>
-          </footer>
-        </form>
-      </div>
+      <!-- Detalhamento de um livro -->
+      <LivroDetalhe 
+        v-if="livroSelecionado" 
+        :livro="livroSelecionado"
+        :todosAutores="autores"
+        :todasEditoras="editoras"
+        @cancelar="cancelarEdicao"
+        @salvar="salvarLivro" />
     </div>
   </div>
 </template>
 
 <script>
-import { format } from "date-fns";
+//import { format } from "date-fns";
+import { dadosLivros } from '../shared/livroService';
+import { dadosAutores } from '../shared/autorService';
+import { dadosEditoras } from '../shared/editoraService';
 import LivroDetalhe from '@/components/livro-detalhe';
-const inputDateFormat = "yyyy-MM-dd";
-const nossosLivros = [
+//const inputDateFormat = "yyyy-MM-dd";
+/* const nossosLivros = [
   {
     id: 19,
     titulo: "Spring Boot in Action",
@@ -120,78 +72,60 @@ const nossosLivros = [
     autores: ["Autor 5", "Autor 6"],
     disponivel: true
   }
-];
+]; */
 export default {
   name: "ListaLivrosPai",
   data() {
     return {
       livroSelecionado: undefined,
-      mostrarMais: false,
       livros: [],
+      autores: [],
       mensagem: "",
-      mensagemPreco: ""
     };
   },
   components: {LivroDetalhe},
-  computed: {
-    tituloDisponibilidade() {
-      return `${this.livroSelecionado.titulo} - ${
-        this.livroSelecionado.disponivel ? "Disponível" : "Indisponível"
-      }`;
-    }
-  },
-  created() {
-    this.carregarLivros();
+  async created() {
+    await this.carregarLivros();
+    await this.carregarAutores();
+    await this.carregarEditoras();
   },
   methods: {
-    async getLivros() {
+    /* async getLivros() {
       return new Promise(resolve => {
         setTimeout(() => resolve(nossosLivros), 1500);
       });
-    },
+    }, */
     async carregarLivros() {
       this.livros = [];
       this.mensagem = "Obtendo os livros. Por favor aguarde...";
-      this.livros = await this.getLivros();
+      //this.livros = await this.getLivros();
+      this.livros = await dadosLivros.getLivros();
       this.mensagem = "";
     },
-    processaMudancaPreco(valorAntigo, valorNovo) {
-      if (valorAntigo == undefined) {
-        this.mensagemPreco = "";
-      } else {
-        if (valorAntigo > valorNovo) {
-          this.mensagemPreco = "O preço caiu";
-        } else this.mensagemPreco = "O preço subiu";
-      }
+    async carregarAutores() {
+      this.autores = [];
+      this.autores = await dadosAutores.getAutores();
     },
-    salvarLivro() {
-      const index = this.livros.findIndex(l => l.id === this.livroSelecionado.id);
-      this.livros.splice(index, 1, this.livroSelecionado);
+    async carregarEditoras() {
+      this.editoras = await dadosEditoras.getEditoras();
+    },
+    salvarLivro(livro) {
+      const index = this.livros.findIndex(l => l.id === livro.id);
+      this.livros.splice(index, 1, livro);
       this.livros = [...this.livros];
       this.livroSelecionado = undefined;
     },
-    cancelarLivro() {
+    cancelarEdicao() {
       this.livroSelecionado = undefined;
     },
     selecionarLivro(livro) {
       this.livroSelecionado = livro;
     },
   },
-  watch: {
-    "livroSelecionado.preco": {
-      immediate: false,
-      handler(valorNovo, valorAntigo) {
-        console.log(
-          `Watcher avaliado. antigo=${valorAntigo}, novo=${valorNovo}`
-        );
-        this.processaMudancaPreco(valorAntigo, valorNovo);
-      }
-    }
-  }
 };
 </script>
 
-<style scoped>
+<style>
 li a {
   cursor: pointer;
 }

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
+import vSelect from 'vue-select';
 
 import "@/assets/global.css"
 import moment from 'moment'
@@ -14,6 +15,8 @@ Vue.filter('formatDate', function(value) {
     return moment(data).format('LL')
   }
 })
+
+Vue.component('v-select', vSelect);
 
 new Vue({
   render: h => h(App),
