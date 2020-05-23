@@ -8,7 +8,8 @@
             v-for="livro in livros"
             :key="livro.id"
             class="list-group-item list-group-item-action"
-            :class="{ 'active': livroSelecionado === livro }">
+            :class="{ 'active': livroSelecionado === livro }"
+          >
             <a @click="selecionarLivro(livro)">
               <span>{{ livro.titulo }}</span>
             </a>
@@ -16,63 +17,30 @@
         </ul>
         <div class="notification" v-show="mensagem">{{ mensagem }}</div>
       </div>
-      <!-- Detalhamento de um livro -->
-      <LivroDetalhe 
-        v-if="livroSelecionado" 
+      <!-- Detalhamento e edição de um livro -->
+      <EditarLivroForm
+        v-if="livroSelecionado"
         :livro="livroSelecionado"
         :todosAutores="autores"
         :todasEditoras="editoras"
         @cancelar="cancelarEdicao"
-        @salvar="salvarLivro" />
+        @atualizar="atualizarLivro"
+        @remover="removerLivro"
+      />
     </div>
   </div>
 </template>
 
 <script>
-//import { format } from "date-fns";
-import { dadosLivros } from '../shared/livroService';
-import { dadosAutores } from '../shared/autorService';
-import { dadosEditoras } from '../shared/editoraService';
-import LivroDetalhe from '@/components/livro-detalhe';
-//const inputDateFormat = "yyyy-MM-dd";
-/* const nossosLivros = [
-  {
-    id: 19,
-    titulo: "Spring Boot in Action",
-    dataPublicacao: format(new Date(2020, 8, 1), inputDateFormat),
-    preco: 500,
-    numeroPaginas: 159,
-    autores: ["Autor 3"],
-    disponivel: true
-  },
-  {
-    id: 20,
-    titulo: "Java Como Programar",
-    dataPublicacao: format(new Date(2000, 3, 8), inputDateFormat),
-    preco: 50,
-    numeroPaginas: 300,
-    autores: ["Autor 1", "Autor 2"],
-    disponivel: true
-  },
-  {
-    id: 21,
-    titulo: "C Como Programar",
-    dataPublicacao: format(new Date(2000, 11, 8), inputDateFormat),
-    preco: 50,
-    numeroPaginas: 300,
-    autores: ["Autor 4"],
-    disponivel: false
-  },
-  {
-    id: 22,
-    titulo: "Vue JS Handbook",
-    dataPublicacao: format(new Date(2020, 3, 8), inputDateFormat),
-    preco: 500,
-    numeroPaginas: 300,
-    autores: ["Autor 5", "Autor 6"],
-    disponivel: true
-  }
-]; */
+import { dadosLivros } from "../shared/livroService";
+import { dadosAutores } from "../shared/autorService";
+import { dadosEditoras } from "../shared/editoraService";
+import EditarLivroForm from "@/components/editar-livro-form";
+
+// Cria um objeto autor para ser usado no momento de atualizar/salvar um livro
+var Autor = function(autorID) {
+  this.autorID = autorID;
+};
 export default {
   name: "ListaLivrosPai",
   data() {
@@ -80,10 +48,11 @@ export default {
       livroSelecionado: undefined,
       livros: [],
       autores: [],
-      mensagem: "",
+      editoras: [],
+      mensagem: ""
     };
   },
-  components: {LivroDetalhe},
+  components: { EditarLivroForm },
   async created() {
     await this.carregarLivros();
     await this.carregarAutores();
@@ -98,30 +67,40 @@ export default {
     async carregarLivros() {
       this.livros = [];
       this.mensagem = "Obtendo os livros. Por favor aguarde...";
-      //this.livros = await this.getLivros();
       this.livros = await dadosLivros.getLivros();
       this.mensagem = "";
     },
     async carregarAutores() {
-      this.autores = [];
       this.autores = await dadosAutores.getAutores();
     },
     async carregarEditoras() {
       this.editoras = await dadosEditoras.getEditoras();
     },
-    salvarLivro(livro) {
-      const index = this.livros.findIndex(l => l.id === livro.id);
-      this.livros.splice(index, 1, livro);
-      this.livros = [...this.livros];
+    async atualizarLivro(livro) {
+      // transforma o array de ids em um array de objetos, cada um com o autorID
+      const autoresLivro = [];
+      livro.autores.forEach(autor => {
+        autoresLivro.push(new Autor(autor));
+      });
+      livro.autores = autoresLivro;
+      await dadosLivros.atualizarLivro(livro);
       this.livroSelecionado = undefined;
+      await this.carregarLivros();
+      alert("Livro")
+      setTimeout(
+        alert(`${livro.titulo} Atualizado!`, 1500)
+      )
+    },
+    removerLivro(livro) {
+      alert(`Deseja remover ${livro.titulo}?`);
     },
     cancelarEdicao() {
       this.livroSelecionado = undefined;
     },
     selecionarLivro(livro) {
       this.livroSelecionado = livro;
-    },
-  },
+    }
+  }
 };
 </script>
 
