@@ -21,7 +21,7 @@
       </div>
       <div class="form-group">
         <label for="preco">Preço</label>
-        <input type="number" class="form-control" id="preco" v-model="livroClonado.preco" />
+        <input type="number" step="0.01" class="form-control" id="preco" v-model="livroClonado.preco" />
         <label>{{mensagemPreco}}</label>
       </div>
       <div class="form-group">
@@ -96,9 +96,7 @@ export default {
   },
   computed: {
     tituloDisponibilidade() {
-      return `${this.livroClonado.titulo} - ${
-        this.livroClonado.disponivel ? "Disponível" : "Indisponível"
-      }`;
+      return `${this.livroClonado.titulo}`;
     },
     autores() {
       return this.todosAutores;

@@ -1,11 +1,19 @@
 import Vue from 'vue'
 import App from './App.vue'
 import vSelect from 'vue-select';
+import VueToastr from '@deveodk/vue-toastr';
+//import '@deveodk/vue-toastr/dist/vue-toaster.css';
 
 import "@/assets/global.css"
 import moment from 'moment'
+import 'toastify-js/src/toastify.css';
 
 Vue.config.productionTip = false
+Vue.use(VueToastr, {
+  defaultPosition: 'toast-bottom-left',
+  defaultType: 'info',
+  defaultTimeout: 1000
+})
 
 
 Vue.filter('formatDate', function(value) {

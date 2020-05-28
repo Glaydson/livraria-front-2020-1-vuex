@@ -1,6 +1,7 @@
 <template>
   <div class="row">
     <div class="card col-md-8">
+      <div class="notification" v-show="mensagemSucesso">{{ mensagemSucesso }}</div>
       <div v-if="!livroSelecionado">
         <div class="card-header">LISTA DE LIVROS</div>
         <ul class="list-group list-group-flush">
@@ -36,6 +37,8 @@ import { dadosLivros } from "../shared/livroService";
 import { dadosAutores } from "../shared/autorService";
 import { dadosEditoras } from "../shared/editoraService";
 import EditarLivroForm from "@/components/editar-livro-form";
+//import VueToastr from '@deveodk/vue-toastr'
+//import Toastify from 'toastify-js';
 
 // Cria um objeto autor para ser usado no momento de atualizar/salvar um livro
 var Autor = function(autorID) {
@@ -49,7 +52,8 @@ export default {
       livros: [],
       autores: [],
       editoras: [],
-      mensagem: ""
+      mensagem: "",
+      mensagemSucesso: '',
     };
   },
   components: { EditarLivroForm },
@@ -59,11 +63,6 @@ export default {
     await this.carregarEditoras();
   },
   methods: {
-    /* async getLivros() {
-      return new Promise(resolve => {
-        setTimeout(() => resolve(nossosLivros), 1500);
-      });
-    }, */
     async carregarLivros() {
       this.livros = [];
       this.mensagem = "Obtendo os livros. Por favor aguarde...";
@@ -77,29 +76,35 @@ export default {
       this.editoras = await dadosEditoras.getEditoras();
     },
     async atualizarLivro(livro) {
-      // transforma o array de ids em um array de objetos, cada um com o autorID
-      const autoresLivro = [];
-      livro.autores.forEach(autor => {
-        autoresLivro.push(new Autor(autor));
-      });
-      livro.autores = autoresLivro;
-      await dadosLivros.atualizarLivro(livro);
-      this.livroSelecionado = undefined;
+      if (livro) {
+        // transforma o array de ids em um array de objetos, cada um com o autorID
+        const autoresLivro = [];
+        livro.autores.forEach(autor => {
+          autoresLivro.push(new Autor(autor));
+        });
+        livro.autores = autoresLivro;
+        await dadosLivros.atualizarLivro(livro);
+        this.mensagemSucesso = `${livro.titulo} Atualizado`; 
+        alert(this.mensagemSucesso);        
+      }  
       await this.carregarLivros();
-      alert("Livro")
-      setTimeout(
-        alert(`${livro.titulo} Atualizado!`, 1500)
-      )
+      this.livroSelecionado = undefined;
     },
-    removerLivro(livro) {
-      alert(`Deseja remover ${livro.titulo}?`);
+    async removerLivro(livro) {
+      if (confirm(`Deseja remover ${livro.titulo}?`)) {
+        const resposta = await dadosLivros.removerLivro(livro);
+        console.log(resposta);
+        this.livroSelecionado = undefined;
+        this.mensagemSucesso = `${livro.titulo} Removido`;
+      }
+      await this.carregarLivros();
     },
     cancelarEdicao() {
       this.livroSelecionado = undefined;
     },
     selecionarLivro(livro) {
       this.livroSelecionado = livro;
-    }
+    },
   }
 };
 </script>

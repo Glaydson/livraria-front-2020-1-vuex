@@ -7,17 +7,34 @@ const APIBASE = 'http://localhost:8081/apilivros/livros';
 
 const getLivros = async function () {
     const resposta = await axios.get(`${APIBASE}/todos`);
+    moment.locale('pt-BR');
     const livros = resposta.data.map(l => {
-        moment.locale('pt-BR');
         // Inicializa a data corretamente usando moment
         const data = moment(l.dataPublicacao, "DD-MM-YYYY");
         // Formata a data para exibição no campo, usando date-fns
         l.dataPublicacao = format(new Date(data), inputDateFormat);
+        l.preco = Number(l.preco).toFixed(2);
         // l.preco = new Intl.NumberFormat
         //     ('pt-BR', { style: 'currency', currency: 'BRL' }).format(l.preco);
         return l;
     });
     return livros;
+}
+
+const getLivro = async function (id) {
+    const resposta = await axios.get(`${APIBASE}/${id}`);
+    moment.locale('pt-BR');
+    const livro = resposta.data.map(l => {
+        // Inicializa a data corretamente usando moment
+        const data = moment(l.dataPublicacao, "DD-MM-YYYY");
+        // Formata a data para exibição no campo, usando date-fns
+        l.dataPublicacao = format(new Date(data), inputDateFormat);
+        l.preco = Number(l.preco).toFixed(2);
+        // l.preco = new Intl.NumberFormat
+        //     ('pt-BR', { style: 'currency', currency: 'BRL' }).format(l.preco);
+        return l;
+    });
+    return livro;
 }
 
 const atualizarLivro = async function (livro) {
@@ -34,6 +51,16 @@ const atualizarLivro = async function (livro) {
     }
 }
 
+const removerLivro = async function(livro) {
+    const uri = `${APIBASE}/delete/${livro.livroID}`;
+    const resposta = await axios.delete(uri, JSON.stringify(livro), {
+        headers: {
+            'Content-type': 'application/json'
+        }
+    });
+    console.log(resposta);
+}
+
 export const dadosLivros = {
-    getLivros, atualizarLivro
+    getLivros, getLivro, atualizarLivro, removerLivro
 }
