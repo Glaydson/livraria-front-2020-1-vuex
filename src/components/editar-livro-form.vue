@@ -1,14 +1,14 @@
 <template>
   <div>
-    <div class="card-header">{{tituloDisponibilidade}}</div>
+    <div class="card-header">{{livro.titulo}}</div>
     <form>
       <div class="form-group">
         <label for="id">Id</label>
-        <input type="text" class="form-control" id="id" disabled :value="livroClonado.livroID" />
+        <input type="text" class="form-control" id="id" disabled :value="livro.livroID" />
       </div>
       <div class="form-group">
         <label for="titulo">Título</label>
-        <input type="text" class="form-control" id="idTitulo" v-model="livroClonado.titulo" />
+        <input type="text" class="form-control" id="idTitulo" v-model="livro.titulo" />
       </div>
       <div class="form-group">
         <label for="dataPublicacao">Data da Publicação</label>
@@ -16,17 +16,19 @@
           type="date"
           class="form-control"
           id="dataPublicacao"
-          v-model="livroClonado.dataPublicacao"
+          v-model="livro.dataPublicacao"
         />
       </div>
       <div class="form-group">
         <label for="preco">Preço</label>
-        <input type="number" step="0.01" class="form-control" id="preco" v-model="livroClonado.preco" />
-        <label>{{mensagemPreco}}</label>
+        <input type="number" step="0.01" 
+          class="form-control" id="preco" v-model="livro.preco" />
       </div>
-      <div class="form-group">
+
+      <div class="form-group" v-if="livro.autores">
+        <label for="autores">Autores</label>
         <select multiple class="form-control" 
-          id="autores" v-model="livroClonado.autores">
+          id="autores" v-model="livro.autores">
           <option
             v-for="autor in autores"
             :key="autor.autorID"
@@ -34,11 +36,12 @@
           >{{autor.nome}}</option>
         </select>
       </div>
-      <div class="form-group">
+      <div class="form-group" v-if="livro.editora">
+        <label for="editora">Editora</label>
         <select class="form-control" 
-          :name="livroClonado.editora" 
+          :name="livro.editora" 
           id="editora" 
-          v-model="livroClonado.editora.editoraID">
+          v-model="livro.editora.editoraID">
           <option
             v-for="editora in editoras"
             :key="editora.editoraID"
@@ -65,76 +68,67 @@
 </template>
 
 <script>
+import { dadosLivros } from "../shared/livroService";
+import { dadosAutores } from "../shared/autorService";
+import { dadosEditoras } from "../shared/editoraService";
+// Cria um objeto autor para ser usado no momento de atualizar/salvar um livro
+var Autor = function(autorID) {
+  this.autorID = autorID;
+};
 export default {
   name: "EditarLivroForm",
   props: {
-    livro: {
-      type: Object,
-      default: () => {}
+    id: {
+      type: Number,
+      default: 0
     },
-    todosAutores: {
-      type: Array,
-      default: () => []
-    },
-    todasEditoras: {
-      type: Array,
-      default: () => []
-    }
   },
   data() {
     return {
-      mensagemPreco: "",
-      livroClonado: { ...this.livro },
+      livro: {},
+      autores: [],
+      editoras: [],
+      mensagemSucesso: ''
     };
   },
-  created () {
+  async created () {
+    this.livro = await dadosLivros.getLivro(this.id);
     // transforma o array de autores em um array de IDs dos autores
-      var autoresIDs = this.livroClonado.autores.map(function (autor) {
-          return autor.autorID;
-      })
-      this.livroClonado.autores = autoresIDs; 
-  },
-  computed: {
-    tituloDisponibilidade() {
-      return `${this.livroClonado.titulo}`;
-    },
-    autores() {
-      return this.todosAutores;
-    },
-    editoras() {
-      return this.todasEditoras;
-    }
+    var autoresIDs = this.livro.autores.map(function (autor) {
+        return autor.autorID;
+    })
+    this.livro.autores = autoresIDs; 
+    this.autores = await dadosAutores.getAutores();
+    this.editoras = await dadosEditoras.getEditoras();
   },
   methods: {
-    atualizarLivro() {
-      this.$emit("atualizar", this.livroClonado);
+    async atualizarLivro() {
+      if (this.livro) {
+        // transforma o array de ids em um array de objetos, cada um com o autorID
+        const autoresLivro = [];
+        this.livro.autores.forEach(autor => {
+          autoresLivro.push(new Autor(autor));
+        });
+        this.livro.autores = autoresLivro;
+        await dadosLivros.atualizarLivro(this.livro);
+        this.mensagemSucesso = `${this.livro.titulo} Atualizado`; 
+        alert(this.mensagemSucesso);        
+      }  
+      await this.carregarLivros();
+      this.livro = undefined;
     },
     cancelarEdicao() {
-      this.$emit("cancelar");
+      this.$emit("terminei")
     },
-    removerLivro() {
-      this.$emit("remover", this.livroClonado);
+    async removerLivro() {
+      if (confirm(`Deseja remover ${this.livro.titulo}?`)) {
+        const resposta = await dadosLivros.removerLivro(this.livro);
+        console.log(resposta);
+        this.livro = undefined;
+        this.mensagemSucesso = `${this.livro.titulo} Removido`;
+      }
+      this.$emit("terminei");
     },
-    processaMudancaPreco(valorAntigo, valorNovo) {
-      if (valorAntigo == undefined) {
-        this.mensagemPreco = "";
-      } else {
-        if (valorAntigo > valorNovo) {
-          this.mensagemPreco = "O preço caiu";
-        } else this.mensagemPreco = "O preço subiu";
-      }
-    }
-  },
-  watch: {
-    "livroClonado.preco": {
-      immediate: false,
-      handler(valorNovo, valorAntigo) {
-        console.log(
-          `Watcher avaliado. antigo=${valorAntigo}, novo=${valorNovo}`
-        );
-        this.processaMudancaPreco(valorAntigo, valorNovo);
-      }
-    }
   },
 };
 </script>
