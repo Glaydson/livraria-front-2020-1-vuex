@@ -114,8 +114,7 @@ export default {
         this.mensagemSucesso = `${this.livro.titulo} Atualizado`; 
         alert(this.mensagemSucesso);        
       }  
-      await this.carregarLivros();
-      this.livro = undefined;
+      this.$emit("terminei");
     },
     cancelarEdicao() {
       this.$emit("terminei")

@@ -31,10 +31,10 @@ const getLivros = async function () {
 } */
 
 const getLivro = async function (id) {
-    /* const resposta = await axios.get(`${APIBASE}/${id}`);
+    const resposta = await axios.get(`${APIBASE}/${id}`);
     moment.locale('pt-BR');
-    //const livro = resposta.data;
-    const livro = new Livro(resposta.data);
+    const livro = resposta.data;
+    //const livro = new Livro(resposta.data);
     console.log(livro)
     // Inicializa a data corretamente usando moment
     const data = moment(livro.dataPublicacao, "DD-MM-YYYY");
@@ -43,8 +43,8 @@ const getLivro = async function (id) {
     livro.preco = Number(livro.preco).toFixed(2);
     // l.preco = new Intl.NumberFormat
     //     ('pt-BR', { style: 'currency', currency: 'BRL' }).format(l.preco);
-    return livro; */
-    const resposta = await axios.get(`${APIBASE}/todos`);
+    return livro;
+    /* const resposta = await axios.get(`${APIBASE}/todos`);
     moment.locale('pt-BR');
     console.log(id)
     var livro;
@@ -61,7 +61,7 @@ const getLivro = async function (id) {
     // Formata a data para exibição no campo, usando date-fns
     livro.dataPublicacao = format(new Date(data), inputDateFormat);
     livro.preco = Number(livro.preco).toFixed(2);
-    return livro;
+    return livro; */
 }
 
 const atualizarLivro = async function (livro) {
