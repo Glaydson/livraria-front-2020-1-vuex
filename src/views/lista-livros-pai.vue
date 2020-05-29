@@ -1,46 +1,34 @@
 <template>
   <div class="row">
     <div class="card col-md-8">
-      <div v-if="!livroSelecionado">
         <div class="card-header">LISTA DE LIVROS</div>
         <ul class="list-group list-group-flush">
           <li
             v-for="livro in livros"
-            :key="livro.id"
+            :key="livro.livroID"
             class="list-group-item list-group-item-action"
-            :class="{ 'active': livroSelecionado === livro }"
           >
-            <a @click="selecionarLivro(livro)">
+            <router-link :to="{name: 'editaLivro', params:{id: livro.livroID} }">
               <span>{{ livro.titulo }}</span>
-            </a>
+            </router-link>
           </li>
         </ul>
         <div class="notification" v-show="mensagem">{{ mensagem }}</div>
-      </div>
-      <!-- Detalhamento e edição de um livro -->
-      <EditarLivroForm
-        v-if="livroSelecionado"
-        :id="livroSelecionado.livroID"
-        @terminei="carregarLivros"
-      />
     </div>
   </div>
 </template>
 
 <script>
 import { dadosLivros } from "../shared/livroService";
-import EditarLivroForm from "@/components/editar-livro-form";
 
 export default {
   name: "ListaLivrosPai",
   data() {
     return {
-      livroSelecionado: undefined,
       livros: [],
-      mensagem: "",
+      mensagem: ""
     };
   },
-  components: { EditarLivroForm },
   async created() {
     await this.carregarLivros();
   },
@@ -50,9 +38,6 @@ export default {
       this.mensagem = "Obtendo os livros. Por favor aguarde...";
       this.livros = await dadosLivros.getLivros();
       this.mensagem = "";
-    },
-    selecionarLivro(livro) {
-      this.livroSelecionado = livro;
     },
   }
 };

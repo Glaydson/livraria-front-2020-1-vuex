@@ -92,6 +92,7 @@ export default {
     };
   },
   async created () {
+    console.log("CREATED")
     this.livro = await dadosLivros.getLivro(this.id);
     // transforma o array de autores em um array de IDs dos autores
     var autoresIDs = this.livro.autores.map(function (autor) {
@@ -114,19 +115,19 @@ export default {
         this.mensagemSucesso = `${this.livro.titulo} Atualizado`; 
         alert(this.mensagemSucesso);        
       }  
-      this.$emit("terminei");
+      this.$router.push({name: 'listaLivros'})
     },
     cancelarEdicao() {
-      this.$emit("terminei")
+      this.$router.push({name: 'listaLivros'})
     },
-    async removerLivro() {
+    removerLivro() {
       if (confirm(`Deseja remover ${this.livro.titulo}?`)) {
-        const resposta = await dadosLivros.removerLivro(this.livro);
+        const resposta = dadosLivros.removerLivro(this.livro);
         console.log(resposta);
         this.livro = undefined;
         this.mensagemSucesso = `${this.livro.titulo} Removido`;
       }
-      this.$emit("terminei");
+      this.$router.push({name: 'listaLivros'})
     },
   },
 };
