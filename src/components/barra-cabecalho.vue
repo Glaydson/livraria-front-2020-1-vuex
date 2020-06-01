@@ -24,7 +24,7 @@
             >Livros</a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <router-link class="dropdown-item" to="/listaLivros">Listar</router-link>
-              <router-link class="dropdown-item" to="/novoLivro">Novo</router-link>
+              <router-link class="dropdown-item" :to="{name: 'novoLivro', params:{id: 0} }">Novo</router-link>
             </div>
           </li>
           <li class="nav-item dropdown">

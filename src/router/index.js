@@ -22,6 +22,12 @@ Vue.use(VueRouter)
     props: r => ({ id: parseInt(r.params.id)}),
   },
   {
+    path: '/novoLivro',
+    name: 'novoLivro',
+    redirect: 'editaLivro/0',
+    component: EditarLivroForm,
+  },
+  {
     path: '/about',
     name: 'About',
     // route level code-splitting

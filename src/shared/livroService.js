@@ -58,6 +58,17 @@ const atualizarLivro = async function (livro) {
     }
 }
 
+const salvarLivro = async function(livro) {
+    const uri = `${APIBASE}/novo`;
+    const resposta = await axios.post(uri, JSON.stringify(livro), {
+        headers: {
+            'Content-type': 'application/json'
+        }
+    });
+    console.log(resposta);
+    return resposta;
+}
+
 const removerLivro = async function (livro) {
     const uri = `${APIBASE}/delete/${livro.livroID}`;
     const resposta = await axios.delete(uri, JSON.stringify(livro), {
@@ -70,5 +81,5 @@ const removerLivro = async function (livro) {
 }
 
 export const dadosLivros = {
-    getLivros, getLivro, atualizarLivro, removerLivro
+    getLivros, getLivro, atualizarLivro, salvarLivro, removerLivro
 }
