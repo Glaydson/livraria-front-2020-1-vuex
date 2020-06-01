@@ -26,7 +26,7 @@ export default {
   data() {
     return {
       livros: [],
-      mensagem: ""
+      mensagem: "",
     };
   },
   async created() {
@@ -39,12 +39,12 @@ export default {
       this.livros = await dadosLivros.getLivros();
       this.mensagem = "";
     },
-  }
+  },
 };
 </script>
 
 <style>
-li a {
+li router-link {
   cursor: pointer;
 }
 .card-header {
@@ -56,9 +56,5 @@ li a {
   color: white;
   font-size: 16px;
   line-height: 30px;
-}
-.botoes {
-  width: 120px;
-  margin-right: 20px;
 }
 </style>

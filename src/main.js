@@ -16,6 +16,12 @@ Vue.filter('formatDate', function(value) {
   }
 })
 
+Vue.filter('upperCase', function(value) {
+  if (value) {
+    return value.toUpperCase();
+  }
+})
+
 new Vue({
   router,
   render: h => h(App)

@@ -33,35 +33,13 @@ const getLivros = async function () {
 const getLivro = async function (id) {
     const resposta = await axios.get(`${APIBASE}/${id}`);
     moment.locale('pt-BR');
-    const livro = resposta.data;
-    //const livro = new Livro(resposta.data);
-    console.log(livro)
+    let livro = resposta.data;
     // Inicializa a data corretamente usando moment
-    const data = moment(livro.dataPublicacao, "DD-MM-YYYY");
+    const data = moment(livro.dataPublicacao, "YYYY-MM-DD");
     // Formata a data para exibição no campo, usando date-fns
     livro.dataPublicacao = format(new Date(data), inputDateFormat);
     livro.preco = Number(livro.preco).toFixed(2);
-    // l.preco = new Intl.NumberFormat
-    //     ('pt-BR', { style: 'currency', currency: 'BRL' }).format(l.preco);
     return livro;
-    /* const resposta = await axios.get(`${APIBASE}/todos`);
-    moment.locale('pt-BR');
-    console.log(id)
-    var livro;
-    resposta.data.forEach(element => {
-        console.log(element.livroID == id);
-        if (element.livroID == id) {
-            livro = element;
-            return element;
-        }
-    });
-    console.log(livro.editora)
-    // Inicializa a data corretamente usando moment
-    const data = moment(livro.dataPublicacao, "DD-MM-YYYY");
-    // Formata a data para exibição no campo, usando date-fns
-    livro.dataPublicacao = format(new Date(data), inputDateFormat);
-    livro.preco = Number(livro.preco).toFixed(2);
-    return livro; */
 }
 
 const atualizarLivro = async function (livro) {
@@ -73,8 +51,10 @@ const atualizarLivro = async function (livro) {
             }
         });
         console.log(resposta);
+        return resposta;
     } catch (error) {
         console.log(error)
+        return error;
     }
 }
 
@@ -86,6 +66,7 @@ const removerLivro = async function (livro) {
         }
     });
     console.log(resposta);
+    return resposta;
 }
 
 export const dadosLivros = {

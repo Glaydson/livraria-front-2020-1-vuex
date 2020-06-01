@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="card-header">{{livro.titulo}}</div>
-    <form>
+    <div class="card-header">{{livro.titulo | upperCase}}</div>
+    <form v-on:submit.prevent>
       <div class="form-group">
         <label for="id">Id</label>
         <input type="text" class="form-control" id="id" disabled :value="livro.livroID" />
@@ -71,6 +71,7 @@
 import { dadosLivros } from "../shared/livroService";
 import { dadosAutores } from "../shared/autorService";
 import { dadosEditoras } from "../shared/editoraService";
+//const dadosFake = {};
 // Cria um objeto autor para ser usado no momento de atualizar/salvar um livro
 var Autor = function(autorID) {
   this.autorID = autorID;
@@ -88,22 +89,33 @@ export default {
       livro: {},
       autores: [],
       editoras: [],
-      mensagemSucesso: ''
+      mensagemSucesso: '',
     };
   },
   async created () {
-    console.log("CREATED")
-    this.livro = await dadosLivros.getLivro(this.id);
-    // transforma o array de autores em um array de IDs dos autores
-    var autoresIDs = this.livro.autores.map(function (autor) {
-        return autor.autorID;
-    })
-    this.livro.autores = autoresIDs; 
-    this.autores = await dadosAutores.getAutores();
-    this.editoras = await dadosEditoras.getEditoras();
+    await this.obterLivro(this.id);
+    //this.autores = await dadosAutores.getAutores();
+    //this.editoras = await dadosEditoras.getEditoras();
+    await this.obterAutores();
+    await this.obterEditoras();
   },
   methods: {
+    async obterLivro(id) {
+      this.livro = await dadosLivros.getLivro(id);
+      // transforma o array de autores em um array de IDs dos autores
+      var autoresIDs = this.livro.autores.map(function (autor) {
+          return autor.autorID;
+      })
+      this.livro.autores = autoresIDs; 
+    },
+    async obterAutores() {
+      this.autores = await dadosAutores.getAutores();
+    },
+    async obterEditoras() {
+      this.editoras = await dadosEditoras.getEditoras();
+    },
     async atualizarLivro() {
+      try{
       if (this.livro) {
         // transforma o array de ids em um array de objetos, cada um com o autorID
         const autoresLivro = [];
@@ -115,20 +127,29 @@ export default {
         this.mensagemSucesso = `${this.livro.titulo} Atualizado`; 
         alert(this.mensagemSucesso);        
       }  
-      this.$router.push({name: 'listaLivros'})
+      this.$router.push('/listaLivros');
+      } catch (erro) {
+        console.log(erro)
+      }
     },
     cancelarEdicao() {
-      this.$router.push({name: 'listaLivros'})
+      this.$router.push({path: '/listaLivros'})
     },
-    removerLivro() {
+    async removerLivro() {
       if (confirm(`Deseja remover ${this.livro.titulo}?`)) {
-        const resposta = dadosLivros.removerLivro(this.livro);
+        const resposta = await dadosLivros.removerLivro(this.livro);
         console.log(resposta);
-        this.livro = undefined;
         this.mensagemSucesso = `${this.livro.titulo} Removido`;
       }
-      this.$router.push({name: 'listaLivros'})
+      this.$router.push({path: '/listaLivros'})
+      
     },
   },
 };
 </script>
+<style scoped>
+.botoes {
+  width: 120px;
+  margin-right: 20px;
+}
+</style>
