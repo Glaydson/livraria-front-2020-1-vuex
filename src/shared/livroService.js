@@ -21,25 +21,23 @@ const getLivros = async function () {
     return livros;
 }
 
-/* function Livro(response) {
-    this.livroID = response.livroID;
-    this.titulo = response.titulo;
-    this.preco = response.preco;
-    this.dataPublicacao = response.dataPublicacao;
-    this.autores = response.autores;
-    this.editora = response.editora;
-} */
-
 const getLivro = async function (id) {
-    const resposta = await axios.get(`${APIBASE}/${id}`);
-    moment.locale('pt-BR');
-    let livro = resposta.data;
-    // Inicializa a data corretamente usando moment
-    const data = moment(livro.dataPublicacao, "YYYY-MM-DD");
-    // Formata a data para exibição no campo, usando date-fns
-    livro.dataPublicacao = format(new Date(data), inputDateFormat);
-    livro.preco = Number(livro.preco).toFixed(2);
-    return livro;
+    try {
+        const resposta = await axios.get(`${APIBASE}/${id}`);
+        moment.locale('pt-BR');
+        let livro = resposta.data;
+        // Inicializa a data corretamente usando moment
+        const data = moment(livro.dataPublicacao, "YYYY-MM-DD");
+        // Formata a data para exibição no campo, usando date-fns
+        livro.dataPublicacao = format(new Date(data), inputDateFormat);
+        livro.preco = Number(livro.preco).toFixed(2);
+        return livro;
+    } catch ( error) {
+        if (error.response) {
+            let erro = error.response.data.message;
+            throw Error(erro)
+        }
+    }
 }
 
 const atualizarLivro = async function (livro) {
@@ -58,7 +56,7 @@ const atualizarLivro = async function (livro) {
     }
 }
 
-const salvarLivro = async function(livro) {
+const salvarLivro = async function (livro) {
     const uri = `${APIBASE}/novo`;
     const resposta = await axios.post(uri, JSON.stringify(livro), {
         headers: {

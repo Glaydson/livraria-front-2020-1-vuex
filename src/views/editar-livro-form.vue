@@ -77,7 +77,6 @@
 import { dadosLivros } from "../shared/livroService";
 import { dadosAutores } from "../shared/autorService";
 import { dadosEditoras } from "../shared/editoraService";
-//const dadosFake = {};
 // Cria um objeto autor para ser usado no momento de atualizar/salvar um livro
 var Autor = function(autorID) {
   this.autorID = autorID;
@@ -96,10 +95,12 @@ export default {
       autores: [],
       editoras: [],
       mensagemSucesso: '',
+      mensagemErro: '',
       tituloPagina: '',
     };
   },
   async created () {
+    //this.buscar();
     if (this.id != 0) {
       await this.obterLivro(this.id);
       //this.autores = await dadosAutores.getAutores();
@@ -114,12 +115,19 @@ export default {
   },
   methods: {
     async obterLivro(id) {
-      this.livro = await dadosLivros.getLivro(id);
-      // transforma o array de autores em um array de IDs dos autores
-      var autoresIDs = this.livro.autores.map(function (autor) {
-          return autor.autorID;
-      })
-      this.livro.autores = autoresIDs; 
+      try {
+        this.livro = await dadosLivros.getLivro(id);
+        console.log(this.livro)
+        // transforma o array de autores em um array de IDs dos autores
+        var autoresIDs = this.livro.autores.map(function (autor) {
+            return autor.autorID;
+        })
+        this.livro.autores = autoresIDs; 
+        } catch (error) {
+          this.mensagemErro = error.message;
+          alert(this.mensagemErro);
+          this.$router.push('/listaLivros');
+      }
     },
     async obterAutores() {
       this.autores = await dadosAutores.getAutores();
@@ -146,8 +154,8 @@ export default {
           alert(this.mensagemSucesso);        
         }  
         this.$router.push('/listaLivros');
-      } catch (erro) {
-        console.log(erro)
+      } catch (error) {
+        console.log(error)
       }
     },
     cancelarEdicao() {

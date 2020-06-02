@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ListaLivrosPai from '@/views/lista-livros-pai'
 import EditarLivroForm from '@/views/editar-livro-form'
+import PaginaNaoEncontrada from '@/views/pagina-nao-encontrada'
 
 Vue.use(VueRouter)
 
@@ -34,7 +35,11 @@ Vue.use(VueRouter)
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  } 
+  },
+  {
+    path: '*',
+    component: PaginaNaoEncontrada,
+  }, 
 ]
 
 const router = new VueRouter({
