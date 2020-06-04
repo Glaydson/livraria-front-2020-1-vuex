@@ -64,10 +64,6 @@
           <i class="fas fa-save"></i>
           <span> Salvar</span>
         </button>
-        <button class="btn btn-primary btn-danger botoes" @click="removerLivro()">
-          <i class="fas fa-trash"></i>
-          <span> Remover</span>
-        </button>
       </footer>
     </form>
   </div>
@@ -160,15 +156,6 @@ export default {
     },
     cancelarEdicao() {
       this.$router.push({path: '/listaLivros'})
-    },
-    async removerLivro() {
-      if (confirm(`Deseja remover ${this.livro.titulo}?`)) {
-        const resposta = await dadosLivros.removerLivro(this.livro);
-        console.log(resposta);
-        this.mensagemSucesso = `${this.livro.titulo} Removido`;
-      }
-      this.$router.push({path: '/listaLivros'})
-      
     },
     inicializaLivro() {
       this.livro.titulo = "";

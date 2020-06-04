@@ -8,7 +8,7 @@
             :key="livro.livroID"
             class="list-group-item list-group-item-action"
           >
-            <router-link :to="{name: 'editaLivro', params:{id: livro.livroID} }">
+            <router-link :to="{name: 'detalhaLivro', params:{id: livro.livroID} }">
               <span>{{ livro.titulo }}</span>
             </router-link>
           </li>

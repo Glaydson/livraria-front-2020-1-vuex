@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import ListaLivrosPai from '@/views/lista-livros-pai'
 import EditarLivroForm from '@/views/editar-livro-form'
+import LivroDetalhe from '@/views/livro-detalhe'
 import PaginaNaoEncontrada from '@/views/pagina-nao-encontrada'
 
 Vue.use(VueRouter)
@@ -15,6 +16,12 @@ Vue.use(VueRouter)
     path: '/listaLivros',
     name: 'listaLivros',
     component: ListaLivrosPai
+  },
+  {
+    path: '/detalhaLivro/:id',
+    name: 'detalhaLivro',
+    component: LivroDetalhe,
+    props: r => ({ id: parseInt(r.params.id)}),
   },
   {
     path: '/editaLivro/:id',
