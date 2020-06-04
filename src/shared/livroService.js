@@ -14,8 +14,6 @@ const getLivros = async function () {
         // Formata a data para exibição no campo, usando date-fns
         l.dataPublicacao = format(new Date(data), inputDateFormat);
         l.preco = Number(l.preco).toFixed(2);
-        // l.preco = new Intl.NumberFormat
-        //     ('pt-BR', { style: 'currency', currency: 'BRL' }).format(l.preco);
         return l;
     });
     return livros;
